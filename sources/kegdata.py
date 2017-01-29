@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 
 import json, threading, logging, Queue, time, getopt, sys, logging
 import RPi.GPIO as GPIO
+import pymysql.cursors
 from hx711 import HX711
 
 
@@ -25,17 +26,25 @@ class kegdata():
 
 
 	kegdata_init = {
-		'name':"Sharon's Stout",
-		'description':'Rich Chocolate and Coffee Flavor',
-		'ABV':7.5,
-		'IBU':23,
-		'weight':320
+		'name':'',
+		'description':'',
+		'abv':0.0,
+		'ibu':0.0,
+		'originalgravity':0.0,
+		'finalgravity':0.0,
+		'color':0.0,
+		'kegged':datetime.datetime.fromtimestamp(0),
+		'tapped':datetime.datetime.fromtimestamp(0),
+		'brewed':datetime.datetime.fromtimestamp(0),
+		'notes':'',
+		'weight':0.0,
 	}
 	varcheck = {
 		u'unicode':
 		[
 			u'name',
 			u'description',
+			u'notes'
 		],
 		u'int':
 		[
@@ -43,12 +52,22 @@ class kegdata():
 		],
 		u'float':
 		[
-			u'ABV',
-			u'IBU',
+			u'abv',
+			u'ibu',
+			u'originalgravity',
+			u'finalgravity',
+			u'color'
+		],
+		u'datetime.datetime':
+		[
+			u'kegged',
+			u'tapped',
+			u'brewed',
 		]
 	}
 
-	def __init__(self, q):
+
+	def __init__(self, q, server, port, pwd, tap):
 		self.dataqueue = q
 		self.kegdata = self.kegdata_init
 		self.kegdata_prev = { }
@@ -68,18 +87,14 @@ class kegdata():
 		data_t.start()
 
 
-		# self.server = server
-		# self.port = port
-		# self.pwd = pwd
-		# self.connection_failed = 0
-		#
-		# self.dataclient = None
+		self.server = server
+		self.port = port
+		self.pwd = pwd
+		self.tap = tap
+		self.connection_failed = 0
 
-		# Now set up a thread to listen to the channel and update our data when
-		# the channel indicates a relevant key has changed
-		# data_t = threading.Thread(target=self.run)
-		# data_t.daemon = True
-		# data_t.start()
+		self.dataclient = None
+
 
 	def validatekegvars(self, vars):
 
@@ -134,33 +149,51 @@ class kegdata():
 					except KeyError:
 						logging.debug(u"Missing required value {0}.  Adding empty version".format(v))
 						vars[v] = 0
+			elif vtype == u'datetime.datetime':
+				for v in members:
+					try:
+						if type(vars[v]) is datetime.datetime:
+							continue
+						if type(vars[v]) is None:
+							vars[v] = datetime.datetime.fromtimestamp(0)
+						else:
+							logging.debug(u"Received non-datetime type {0} in {1}.  Converting to empty date".format(type(vars[v]),v))
+							vars[v] = datetime.datetime.fromtimestamp(0)
+					except KeyError:
+						logging.debug(u"Missing required value {0}.  Adding empty version".format(v))
+						vars[v] = datetime.datetime.fromtimestamp(0)
 
 
-	# def connect(self):
-	#
-	# 	# Try up to 10 times to connect to REDIS
-	# 	self.connection_failed = 0
-	#
-	# 	logging.debug(u"Connecting to Rune Redis service on {0}:{1}".format(self.server, self.port))
-	#
-	# 	while True:
-	# 		if self.connection_failed >= 10:
-	# 			logging.debug(u"Could not connect to Rune Redis service")
-	# 			raise RuntimeError(u"Could not connect to Rune Redis service")
-	# 		try:
-	# 			# Connection to REDIS
-	# 			client = redis.StrictRedis(self.server, self.port, self.pwd)
-	#
-	# 			# Configure REDIS to send keyspace messages for set events
-	# 			client.config_set(u'notify-keyspace-events', u'KEA')
-	# 			self.dataclient = client
-	# 			logging.debug(u"Connected to Rune Redis service")
-	# 			break
-	# 		except:
-	# 			self.dataclient = None
-	# 			self.connection_failed += 1
-	# 			time.sleep(1)
-	#
+	def connect(self):
+
+		# Try up to 10 times to connect to REDIS
+		self.connection_failed = 0
+
+		logging.debug(u"Connecting to mySQL service on {0}:{1}".format(self.server, self.port))
+
+		while True:
+			if self.connection_failed >= 10:
+				logging.debug(u"Could not connect to mySQL service")
+				raise RuntimeError(u"Could not connect to mySQL service")
+			try:
+				# Connection to mySQL
+				conn = pymysql.connect(host=self.server,
+					db='pydKeg',
+					user='root',
+					charset='utf8',
+					password=self.pwd,
+					cursorclass=pymysql.cursors.DictCursor)
+
+				if conn.open:
+					logging.debug('Connected to MySQL database')
+
+				self.dataclient = conn
+				break
+			except:
+				self.dataclient = None
+				self.connection_failed += 1
+				time.sleep(1)
+
 	#
 	# def subscribe(self):
 	# 	# Try to subscribe.  If you fail, reconnect and try again.
@@ -222,12 +255,44 @@ class kegdata():
 	def status(self):
 		# Read kegplayer status and update kegdata
 
+		cursor = self.dataclient.cursor()
+		cursor.execute("SELECT Beer FROM Tap WHERE Tap.Tap = %s", (self.tap) )
+		row = cursor.fetchone()
+		if row is not None:
+			Beer = row['Beer']
+		else:
+			Beer = ''
 
-		# Update keg variables
-		self.kegdata[u'name'] = "Sharon's Stout"
-		self.kegdata[u'description'] = "Rich Chocolate and Coffee Flavor"
-		self.kegdata[u'ABV'] = 7.5
-		self.kegdata[u'IBU'] = 23
+		cursor.execute("SELECT * FROM Beer WHERE Beer.idBeer = %s", (Beer))
+		row = cursor.fetchone()
+		if row is not None:
+			# Update keg variables
+			self.kegdata[u'name'] = row['Name'] if 'Name' in row else u''
+			self.kegdata[u'description'] = row['Description'] if 'Description' in row else u''
+			self.kegdata[u'abv'] = row['ABV'] if 'ABV' in row else 0.0
+			self.kegdata[u'ibu'] = row['IBU'] if 'IBU' in row else 0.0
+			self.kegdata[u'originalgravity'] = row['OriginalGravity'] if 'OriginalGravity' in row else 0.0
+			self.kegdata[u'finalgravity'] = row['FinalGravity'] if 'FinalGravity' in row else 0.0
+			self.kegdata[u'color'] = row['Color'] if 'Color' in row else 0.0
+			self.kegdata[u'kegged'] = row['Kegged'] if 'Kegged' in row else datetime.datetime.fromtimestamp(0)
+			self.kegdata[u'tapped'] = row['Tapped'] if 'Tapped' in row else datetime.datetime.fromtimestamp(0)
+			self.kegdata[u'brewed'] = row['Tapped'] if 'Tapped' in row else datetime.datetime.fromtimestamp(0)
+			self.kegdata[u'notes'] = row['Notes'] if 'Notes' in row else u''
+		else:
+			self.kegdata[u'name'] = u''
+			self.kegdata[u'description'] = u''
+			self.kegdata[u'abv'] = 0.0
+			self.kegdata[u'ibu'] = 0.0
+			self.kegdata[u'originalgravity'] = 0.0
+			self.kegdata[u'finalgravity'] = 0.0
+			self.kegdata[u'color'] = 0.0
+			self.kegdata[u'kegged'] = datetime.datetime.fromtimestamp(0)
+			self.kegdata[u'tapped'] = datetime.datetime.fromtimestamp(0)
+			self.kegdata[u'brewed'] = datetime.datetime.fromtimestamp(0)
+			self.kegdata[u'notes'] = u''
+
+
+
 
 		self.kegdata[u'weight'] = int(self.hx.get_weight(10))
 		print "Weight is {0} in oz".format(self.kegdata[u'weight'])
@@ -260,32 +325,34 @@ if __name__ == u'__main__':
 	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename=u'kegdata.log', level=logging.DEBUG)
 	logging.getLogger().addHandler(logging.StreamHandler())
 
-	# try:
-	# 	opts, args = getopt.getopt(sys.argv[1:],u"hs:p:w:",[u"server=",u"port=",u"pwd="])
-	# except getopt.GetoptError:
-	# 	print u'kegdata_rune.py -s <server> -p <port> -w <password>'
-	# 	sys.exit(2)
+	try:
+		opts, args = getopt.getopt(sys.argv[1:],u"hs:p:w:t:",[u"server=",u"port=",u"pwd=",u"tap="])
+	except getopt.GetoptError:
+		print u'kegdata.py -s <server> -p <port> -w <password> -t <tap>'
+		sys.exit(2)
 
-	# Set defaults
-	# server = u'localhost'
-	# port = 6379
-	# pwd= u''
+	Set defaults
+	server = u'localhost'
+	port = 3306
+	pwd= u''
 
-	# for opt, arg in opts:
-	# 	if opt == u'-h':
-	# 		print u'kegdata_rune.py -s <server> -p <port> -w <password>'
-	# 		sys.exit()
-	# 	elif opt in (u"-s", u"--server"):
-	# 		server = arg
-	# 	elif opt in (u"-p", u"--port"):
-	# 		port = arg
-	# 	elif opt in (u"-w", u"--pwd"):
-	# 		pwd = arg
+	for opt, arg in opts:
+		if opt == u'-h':
+			print u'kegdata.py -s <server> -p <port> -w <password>'
+			sys.exit()
+		elif opt in (u"-s", u"--server"):
+			server = arg
+		elif opt in (u"-p", u"--port"):
+			port = arg
+		elif opt in (u"-w", u"--pwd"):
+			pwd = arg
+		elif opt in (u"-t", u"--tap"):
+			pwd = int(arg)
 
 
 	import sys
 	q = Queue.Queue()
-	kd = kegdata(q)
+	kd = kegdata(q. server, port, pwd, tap)
 
 	try:
 		start = time.time()
