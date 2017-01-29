@@ -5,16 +5,23 @@ STARTUP_MSG = u"pydKeg\nStarting"
 STARTUP_LOGMSG = u"pydKeg Starting"
 
 # Display Parameters
-DISPLAY_DRIVER='lcd_display_driver_winstar_ws0010_graphics_mode'
+DISPLAY_DRIVER='winstar_weg'
 DISPLAY_WIDTH = 100 # the  width of the display
 DISPLAY_HEIGHT = 16 # the height of the display
 DISPLAY_SIZE = (DISPLAY_WIDTH, DISPLAY_HEIGHT)
 #DISPLAY_WIDTH = 20 # the character width of the display
 #DISPLAY_HEIGHT = 4 # the number of lines on the display
-DISPLAY_PIN_RS = 7
-DISPLAY_PIN_E =  8
-DISPLAY_PINS_DATA = [ 25, 24, 23, 27 ] # Raspdac V3
-#DISPLAY_PINS_DATA = [ 25, 24, 23, 15 ] # Raspdac V2
+DISPLAY_PIN_RS = 8
+DISPLAY_PIN_E =  7
+DISPLAY_PINS_DATA = [ 12, 16, 20, 21 ] # Raspdac V2
+
+# DB Server Parameters
+SERVER='pydKeg-tap1.local'
+PASSWORD='beertime'
+PORT=3306
+
+# Tap Number
+TAP=1
 
 # Page Parameters
 SCROLL_BLANK_WIDTH = 10 # Number of spaces to insert into string that is scrolling

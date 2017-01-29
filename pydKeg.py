@@ -74,7 +74,7 @@ class keg_controller(threading.Thread):
 	def initservices(self):
 
 		kegservice = None
-		kegservice = sources.kegdata.kegdata(self.kegqueue )
+		kegservice = sources.kegdata.kegdata(self.kegqueue, pydKeg_config.SERVER, pydKeg_config.PORT, pydKeg_config.PASSWORD, pydKeg_config.TAP )
 
 	def run(self):
 
@@ -424,14 +424,12 @@ if __name__ == u'__main__':
 		driver = pydKeg_config.DISPLAY_DRIVER
 
 
-	if driver == u"lcd_display_driver_winstar_weh001602a":
-		lcd = displays.lcd_display_driver_winstar_weh001602a.lcd_display_driver_winstar_weh001602a(rows, cols, pin_rs, pin_e, pins_data)
-	elif driver == u"lcd_display_driver_winstar_ws0010_graphics_mode":
-		lcd = displays.lcd_display_driver_winstar_ws0010_graphics_mode.lcd_display_driver_winstar_ws0010_graphics_mode(rows, cols, pin_rs, pin_e, pins_data)
-	elif driver == u"lcd_display_driver_hd44780":
-		lcd = displays.lcd_display_driver_hd44780.lcd_display_driver_hd44780(rows, cols, pin_rs, pin_e, pins_data)
-	elif driver == u"lcd_display_driver_curses":
-		lcd = displays.lcd_display_driver_curses.lcd_display_driver_curses(rows, cols)
+	if driver == u"winstar_weg":
+		lcd = displays.winstar_weg.winstar_weg(rows, cols, pin_rs, pin_e, pins_data)
+	elif driver == u"hd44780":
+		lcd = displays.hd44780.hd44780(rows, cols, pin_rs, pin_e, pins_data)
+	elif driver == u"curses":
+		lcd = displays.curses.curses(rows, cols)
 	else:
 		logging.critical(u"No valid display found")
 		sys.exit()
@@ -451,8 +449,7 @@ if __name__ == u'__main__':
 			# Get next image and send it to the display every .1 seconds
 			with mc.kegdata_lock:
 				img = dc.next()
-			frame = displays.display.getframe(img, 0, 0, pydKeg_config.DISPLAY_WIDTH, pydKeg_config.DISPLAY_HEIGHT)
-			lcd.update(frame)
+			lcd.update(img)
 			time.sleep(.02)
 
 

@@ -28,6 +28,7 @@ import fonts
 import graphics as g
 from PIL import Image
 import logging
+import display
 
 try:
 	import RPi.GPIO as GPIO
@@ -216,7 +217,6 @@ if __name__ == '__main__':
 	import getopt,sys,os
 	import graphics as g
 	import fonts
-	import display
 	import moment
 
 	def processevent(events, starttime, prepost, db, dbp):

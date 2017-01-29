@@ -74,7 +74,7 @@ class kegdata():
 
 		print "Initializing keg data service"
 
-		self.hx = HX711(4,17)
+		self.hx = HX711(25,24)
 		self.hx.set_reading_format("LSB", "MSB")
 		self.hx.set_reference_unit(673)
 		self.hx.reset()
