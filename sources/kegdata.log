@@ -1,0 +1,25 @@
+2017-01-29 17:51:08,108:DEBUG:kegdata service starting
+2017-01-29 17:54:36,691:DEBUG:kegdata service starting
+2017-01-29 17:54:36,703:DEBUG:Connecting to mySQL service on pydKeg-tap1.local:3306
+2017-01-29 17:54:46,988:DEBUG:Could not connect to mySQL service
+2017-01-29 17:54:51,998:DEBUG:Connecting to mySQL service on pydKeg-tap1.local:3306
+2017-01-29 17:55:02,155:DEBUG:Could not connect to mySQL service
+2017-01-29 17:56:34,684:DEBUG:kegdata service starting
+2017-01-29 17:56:34,694:DEBUG:Connecting to mySQL service on pydKeg-tap1.local:3306
+2017-01-29 17:56:44,712:DEBUG:Could not connect to mySQL service
+2017-01-29 17:56:49,722:DEBUG:Connecting to mySQL service on pydKeg-tap1.local:3306
+2017-01-29 17:57:34,662:DEBUG:kegdata service starting
+2017-01-29 17:57:34,670:DEBUG:Connecting to mySQL service on pydKeg-tap1.local:3306
+2017-01-29 17:59:20,052:DEBUG:kegdata service starting
+2017-01-29 17:59:20,071:DEBUG:Connecting to mySQL service on pydKeg-tap1.local:3306
+2017-01-29 18:02:08,100:DEBUG:kegdata service starting
+2017-01-29 18:02:08,111:DEBUG:Connecting to mySQL service on pydKeg-tap1.local:3306
+2017-01-29 18:03:55,883:DEBUG:kegdata service starting
+2017-01-29 18:03:55,891:DEBUG:Connecting to mySQL service on pydKeg-tap1.local:3306
+2017-01-29 18:06:55,139:DEBUG:kegdata service starting
+2017-01-29 18:06:55,162:DEBUG:Connecting to mySQL service on pydKeg-tap1.local:3306
+2017-01-29 18:06:55,167:DEBUG:Connecting to pydKeg-tap1.local with password 1
+2017-01-29 18:08:04,935:DEBUG:kegdata service starting
+2017-01-29 18:08:04,946:DEBUG:Connecting to mySQL service on pydKeg-tap1.local:3306
+2017-01-29 18:08:04,950:DEBUG:Connecting to pydKeg-tap1.local with password beertime
+2017-01-29 18:08:04,988:DEBUG:Connected to MySQL database

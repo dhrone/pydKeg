@@ -5,7 +5,7 @@
 # Written by: Ron Ritchey
 from __future__ import unicode_literals
 
-import json, threading, logging, Queue, time, getopt, sys, logging
+import json, threading, logging, Queue, time, getopt, sys, logging, datetime
 import RPi.GPIO as GPIO
 import pymysql.cursors
 from hx711 import HX711
@@ -177,6 +177,7 @@ class kegdata():
 				raise RuntimeError(u"Could not connect to mySQL service")
 			try:
 				# Connection to mySQL
+				logging.debug("Connecting to {0} with password {1}".format(self.server, self.pwd))
 				conn = pymysql.connect(host=self.server,
 					db='pydKeg',
 					user='root',
@@ -190,9 +191,11 @@ class kegdata():
 				self.dataclient = conn
 				break
 			except:
+				raise
 				self.dataclient = None
 				self.connection_failed += 1
 				time.sleep(1)
+				
 
 	#
 	# def subscribe(self):
@@ -220,36 +223,28 @@ class kegdata():
 		logging.debug(u"kegdata service starting")
 
 		while True:
-			# if self.dataclient is None:
-			# 	try:
-			# 		# Try to connect
-			# 		self.connect()
-			# 		self.subscribe()
-			# 		self.status()
-			# 		self.sendUpdate()
-			# 	except (redis.ConnectionError, RuntimeError):
-			# 		self.dataclient = None
-			# 		# On connection error, sleep 5 and then return to top and try again
-			# 		time.sleep(5)
-			# 		continue
-			# try:
-			# 	# Wait for notice that key has changed
-			# 	msg = self.pubsub.get_message()
-			# 	if msg:
-			# 		# act_player_info key event occured
-			# 		self.status()
-			# 		self.sendUpdate()
-			# 	time.sleep(.01)
-			# except (redis.ConnectionError, RuntimeError):
-			# 	# if we lose our connection while trying to query DB
-			# 	# sleep 5 and then return to top to try again
-			# 	self.dataclient = None
-			# 	logging.debug(u"Could not get status from Rune Redis service")
-			# 	time.sleep(5)
-			# 	continue
-			self.status()
-			self.sendUpdate()
-			time.sleep(5)
+			if self.dataclient is None:
+				try:
+					# Try to connect
+					self.connect()
+					self.status()
+					self.sendUpdate()
+				except (RuntimeError):
+					self.dataclient = None
+					# On connection error, sleep 5 and then return to top and try again
+					time.sleep(5)
+					continue
+			try:
+				self.status()
+				self.sendUpdate()
+				time.sleep(2)
+			except (RuntimeError):
+				# if we lose our connection while trying to query DB
+				# sleep 5 and then return to top to try again
+				self.dataclient = None
+				logging.debug(u"Could not get status from mySQL service")
+				time.sleep(5)
+				continue
 
 
 	def status(self):
@@ -331,14 +326,15 @@ if __name__ == u'__main__':
 		print u'kegdata.py -s <server> -p <port> -w <password> -t <tap>'
 		sys.exit(2)
 
-	Set defaults
+	# Set defaults
 	server = u'localhost'
 	port = 3306
 	pwd= u''
+	tap = 1
 
 	for opt, arg in opts:
 		if opt == u'-h':
-			print u'kegdata.py -s <server> -p <port> -w <password>'
+			print u'kegdata.py -s <server> -p <port> -w <password> -t <tap>'
 			sys.exit()
 		elif opt in (u"-s", u"--server"):
 			server = arg
@@ -347,12 +343,12 @@ if __name__ == u'__main__':
 		elif opt in (u"-w", u"--pwd"):
 			pwd = arg
 		elif opt in (u"-t", u"--tap"):
-			pwd = int(arg)
+			tap = int(arg)
 
 
 	import sys
 	q = Queue.Queue()
-	kd = kegdata(q. server, port, pwd, tap)
+	kd = kegdata(q, server, port, pwd, tap)
 
 	try:
 		start = time.time()
