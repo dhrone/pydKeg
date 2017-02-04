@@ -9,4 +9,5 @@ sudo apt-get install RPi.GPIO
 sudo apt-get install python-pip
 sudo pip install moment
 sudo pip install pymysql
+sudo apt-get install python-numpy
 sudo apt-get install iputils-ping

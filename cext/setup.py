@@ -1,7 +1,7 @@
 from distutils.core import setup, Extension
 import numpy.distutils.misc_util
 
-c_ext = Extension("_chi2", ["_chi2.c", "chi2.c"])
+c_ext = Extension("_winstar_weg", ["_winstar_weg.c", "winstar_weg.c"])
 
 setup(
     ext_modules=[c_ext],
