@@ -1,37 +1,43 @@
-#include "winstar_weg.h"
 #include <stdio.h>
 #include <math.h>
+#include <bcm2835.h>
+#include <unistd.h>
+#include "winstar_weg.h"
 
 void updateframe(int rs, int e, int d4, int d5, int d6, int d7, int width, int height, int *frame) {
 
-	for (int j=0; j<height; j++) {
+	int val;
+	int j,i;
+
+	clear(rs, e, d4, d5, d6, d7);
+	for (j=0; j<height; j++) {
 		setrow(rs, e, d4, d5, d6, d7, j);
-		for (int i=0; i<width; i++) {
-			writechar(rs, e, d4, d5, d6, d7, *((frame+j*width)+i));
+		for (i=0; i<width; i++) {
+			val = (unsigned char)*((frame+j*width)+i);
+			send_byte(rs, e, d4, d5, d6, d7, val, 1);
 		}
 	}
 }
 
 void printframe(int width, int height, int *frame) {
-
 	printf("\n   |");
-	int i = 0;
-	for (int j=0; j<width; j++){
+	int i = 0, j, b;
+	for (j=0; j<width; j++){
 		if (j%5 == 0) printf("%d",j/5); else printf(" ");
 		i++;
 		if (i==10) i = 0;
 	}
 	printf("|\n");
 	printf("   ");
-	for (int j = 0; j < width+2; j++) {
+	for (j = 0; j < width+2; j++) {
 		printf("-");
 	}
 	printf("\n");
-	for (int j = 0; j < height; j++) {
+	for (j = 0; j < height; j++) {
 		int mask = 1;
-		for (int b = 0; b < 8; b++) {
+		for (b = 0; b < 8; b++) {
 			printf("%03d|",j*8+b);
-			for (int i = 0; i < width; i++) {
+			for (i = 0; i < width; i++) {
 				if (*((frame+j*width)+i) & mask) printf("*"); else printf(" ");
 			}
 			printf("|\n");
@@ -39,7 +45,7 @@ void printframe(int width, int height, int *frame) {
 		}
 	}
 	printf("   ");
-	for (int j = 0; j < width+2; j++) {
+	for (j = 0; j < width+2; j++) {
 		printf("-");
 	}
 	printf("\n");
@@ -143,6 +149,7 @@ void clear( int rs, int e, int d4, int d5, int d6, int d7 ) {
 
 void setrow( int rs, int e, int d4, int d5, int d6, int d7, unsigned char row )
 {
+  send_byte(rs, e, d4, d5, d6, d7, LCD_SETDDRAMADDR, 0);
   send_byte(rs, e, d4, d5, d6, d7, LCD_SETCGRAMADDR|row, 0);
 }
 
@@ -157,7 +164,7 @@ int main() {
 	int frame[2][35] = { { 2, 2, 254, 2, 2, 112, 168, 168, 168, 48, 144, 168, 168, 168, 64, 8, 126, 136, 128, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 										{   254, 4, 8, 4, 254, 112, 168, 168, 168, 48, 144, 168, 168, 168, 64, 144, 168, 168, 168, 64, 64, 168, 168, 168, 240, 16, 40, 168, 168, 120, 112, 168, 168, 168, 48} };
 
-	if ( ! init(8,7,12,16,20,21) ) { printf("Error initializing display.  Exiting...\n"), return 1; }
+	if ( ! init(8,7,12,16,20,21) ) { printf("Error initializing display.  Exiting...\n"); return 1; }
 	printframe(35, 2, (int *)frame);
 	updateframe(8,7,12,16,20,21,35,2, (int *)frame);
 
