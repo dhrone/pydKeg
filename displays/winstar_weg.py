@@ -31,6 +31,13 @@ import logging
 import display
 
 try:
+	import _winstar_weg
+	C_LIBRARY = True
+except:
+	logging.debug("_winstar_weg not found")
+	C_LIBRARY = False
+
+try:
 	import RPi.GPIO as GPIO
 except:
 	logging.debug("RPi.GPIO not installed")
@@ -191,7 +198,11 @@ class winstar_weg(lcd_display_driver.lcd_display_driver):
 
 		# Compute frame from image
 		frame = self.getframe( img, 0,0, self.cols,self.rows )
-		self.updateframe(frame)
+
+		if C_LIBRARY
+			_winstar_weg.updateframe(self.rs, self.e, self.pins_db[0], self.pins_db[1], self.pins_db[2], self.pins_db[3],frame)
+		else
+			self.updateframe(frame)
 
 	def updateframe(self, newbuf):
 
