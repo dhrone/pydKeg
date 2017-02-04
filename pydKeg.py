@@ -180,54 +180,6 @@ class keg_controller(threading.Thread):
 
 			current_ip = commands.getoutput(u"ip -4 route get 1 | head -1 | cut -d' ' -f8 | tr -d '\n'").strip()
 
-			outside_tempf = 0.0
-			outside_tempc = 0.0
-			outside_temp = 0.0
-			outside_temp_max = 0.0
-			outside_temp_min = 0.0
-			outside_conditions = u'No data'
-			outside_temp_formatted = u'0'
-			outside_temp_max_formatted = u'0'
-			outside_temp_min_formatted = u'0'
-
-			try:
-				owm = pyowm.OWM(pydKeg_config.OWM_API)
-				obs = owm.weather_at_coords(pydKeg_config.OWM_LAT, pydKeg_config.OWM_LON)
-				fc = owm.daily_forecast_at_coords(pydKeg_config.OWM_LAT, pydKeg_config.OWM_LON)
-				f = fc.get_forecast()
-				dailyfc = f.get_weathers()
-				wea = obs.get_weather()
-
-				outside_tempf = wea.get_temperature(u'fahrenheit')[u'temp']
-				outside_temp_maxf = dailyfc[0].get_temperature(u'fahrenheit')[u'max']
-				outside_temp_minf = dailyfc[0].get_temperature(u'fahrenheit')[u'min']
-
-				outside_tempc = wea.get_temperature(u'celsius')[u'temp']
-				outside_temp_maxc = dailyfc[0].get_temperature(u'celsius')[u'max']
-				outside_temp_minc = dailyfc[0].get_temperature(u'celsius')[u'min']
-
-				# Localize temperature value
-				if pydKeg_config.TEMPERATURE.lower() == u'celsius':
-					outside_temp = outside_tempc
-					outside_temp_max = int(outside_temp_maxc)
-					outside_temp_min = int(outside_temp_minc)
-					outside_temp_formatted = u"{0}°C".format(int(outside_temp))
-					outside_temp_max_formatted = u"{0}°C".format(int(outside_temp_max))
-					outside_temp_min_formatted = u"{0}°C".format(int(outside_temp_min))
-				else:
-					outside_temp = outside_tempf
-					outside_temp_max = int(outside_temp_maxf)
-					outside_temp_min = int(outside_temp_minf)
-					outside_temp_formatted = u"{0}°F".format(int(outside_temp))
-					outside_temp_max_formatted = u"{0}°F".format(int(outside_temp_max))
-					outside_temp_min_formatted = u"{0}°F".format(int(outside_temp_min))
-
-				outside_conditions = wea.get_detailed_status()
-			except:
-				logging.debug(u"Failed to get weather data.  Check OWM_API key.")
-				pass
-
-
 			try:
 				with open(u"/sys/class/thermal/thermal_zone0/temp") as file:
 					system_tempc = int(file.read())
@@ -444,13 +396,19 @@ if __name__ == u'__main__':
 	mc.start()
 	dc.load(pagefile, mc.kegdata,mc.kegdata_prev)
 
+
 	try:
 		while True:
+
+			start_loop = time.time()
 			# Get next image and send it to the display every .1 seconds
 			with mc.kegdata_lock:
 				img = dc.next()
 			lcd.update(img)
-			time.sleep(.02)
+
+			delay_time = time.time() - start_loop + pydKeg_config.ANIMATION_SMOOTHING
+			if delay_time > 0:
+				time.sleep(delay_time)
 
 
 	except KeyboardInterrupt:

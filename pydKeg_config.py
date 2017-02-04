@@ -27,7 +27,7 @@ TAP=1
 SCROLL_BLANK_WIDTH = 10 # Number of spaces to insert into string that is scrolling
 COOLING_PERIOD = 15 # Default amount of time in seconds before an alert message can be redisplayed
 HESITATION_TIME = 2.5 # Amount of time in seconds to hesistate before scrolling
-ANIMATION_SMOOTHING = .15 # Amount of time in seconds before repainting display
+ANIMATION_SMOOTHING = .01 # Amount of time in seconds before repainting display
 
 # System Parameters
 # This is where the log file will be written

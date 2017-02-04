@@ -1,7 +1,8 @@
 
 #define LCD_SETCGRAMADDR 0x40
 #define LCD_SETDDRAMADDR 0x80
-#define P_NARROW 100   // Min delay 120
+//#define P_NARROW 100   // Min delay 120
+#define P_NARROW 1   // Min delay 120
 #define P_WIDE   1000  // Pulse width
 #define P_15MS   15500 // >15ms
 

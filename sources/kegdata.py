@@ -237,7 +237,7 @@ class kegdata():
 			try:
 				self.status()
 				self.sendUpdate()
-				time.sleep(30)
+				time.sleep(5)
 			except (RuntimeError):
 				# if we lose our connection while trying to query DB
 				# sleep 5 and then return to top to try again

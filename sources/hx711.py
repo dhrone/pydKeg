@@ -54,7 +54,7 @@ class HX711:
     def read(self):
         while not self.is_ready():
             #print("WAITING")
-			GPIO.wait_for_edge(self.DOUT, GPIO.FALLING)
+            GPIO.wait_for_edge(self.DOUT, GPIO.FALLING)
             pass
 
         dataBits = [self.createBoolList(), self.createBoolList(), self.createBoolList()]

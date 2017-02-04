@@ -9,7 +9,6 @@ void updateframe(int rs, int e, int d4, int d5, int d6, int d7, int width, int h
 	int val;
 	int j,i;
 
-	clear(rs, e, d4, d5, d6, d7);
 	for (j=0; j<height; j++) {
 		setrow(rs, e, d4, d5, d6, d7, j);
 		for (i=0; i<width; i++) {

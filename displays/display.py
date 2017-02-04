@@ -608,10 +608,8 @@ class gwidget(widget):
 			rvhigh = t
 
 		if v < rvlow :
-			logging.debug("v out of range with value {0}.  Should have been between {1} and {2}".format(v,rvlow,rvhigh))
 			v = rvlow
 		if v > rvhigh :
-			logging.debug("v out of range with value {0}.  Should have been between {1} and {2}".format(v,rvlow,rvhigh))
 			v = rvhigh
 
 		try:
