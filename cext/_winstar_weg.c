@@ -7,17 +7,20 @@ static char module_docstring[] = "This module provides an interface to the winst
 static char init_docstring[] = "Initialize display";
 static char updateframe_docstring[] = "Send frame to display";
 static char printframe_docstring[] = "Send frame to stdout";
+static char clear_docstring[] = "Clear display";
 
 /* Available functions */
 static PyObject *winstar_weg_init(PyObject *self, PyObject *args);
 static PyObject *winstar_weg_updateframe(PyObject *self, PyObject *args);
 static PyObject *winstar_weg_printframe(PyObject *self, PyObject *args);
+static PyObject *winstar_weg_clear(PyObject *self, PyObject *args);
 
 /* Module specification */
 static PyMethodDef module_methods[] = {
 		{"init", winstar_weg_init, METH_VARARGS, init_docstring},
 		{"updateframe", winstar_weg_updateframe, METH_VARARGS, updateframe_docstring},
 		{"printframe", winstar_weg_printframe, METH_VARARGS, printframe_docstring},
+		{"clear", winstar_weg_clear, METH_VARARGS, clear_docstring},
 		{NULL, NULL, 0, NULL}
 };
 
@@ -38,10 +41,19 @@ static PyObject *winstar_weg_init(PyObject *self, PyObject *args)
 		/* Parse the input tuple */
 		if (!PyArg_ParseTuple(args, "iiiiii", &rs, &e, &d4, &d5, &d6, &d7)) return NULL;
 
-		printf("Received vars rs(%d), e(%d), d4(%d), d5(%d), d6(%d), d7(%d)",rs,e,d4,d5,d6,d7);
-
 		/* Call the external C function to initialize the display */
 		init(rs, e, d4, d5, d6, d7);
+		return Py_None;
+}
+
+static PyObject *winstar_weg_clear(PyObject *self, PyObject *args)
+{
+		int rs, e, d4, d5, d6, d7;
+		/* Parse the input tuple */
+		if (!PyArg_ParseTuple(args, "iiiiii", &rs, &e, &d4, &d5, &d6, &d7)) return NULL;
+
+		/* Call the external C function to initialize the display */
+		clear(rs, e, d4, d5, d6, d7);
 		return Py_None;
 }
 
@@ -53,8 +65,6 @@ static PyObject *winstar_weg_updateframe(PyObject *self, PyObject *args)
 		/* Parse the input tuple */
 		if (!PyArg_ParseTuple(args, "iiiiiiO", &rs, &e, &d4, &d5, &d6, &d7, &f_obj))
 				return NULL;
-
-		printf("Received vars rs(%d), e(%d), d4(%d), d5(%d), d6(%d), d7(%d)",rs,e,d4,d5,d6,d7);
 
 		/* Interpret the frame object as a numpy array. */
 		PyObject *f_array = PyArray_FROM_OTF(f_obj, NPY_INT, NPY_IN_ARRAY);
@@ -78,8 +88,6 @@ static PyObject *winstar_weg_updateframe(PyObject *self, PyObject *args)
 		/* How many data points are there? */
 		int rows = (int)PyArray_DIM(f_array, 0);
 		int cols = (int)PyArray_DIM(f_array, 1);
-
-		printf("Frame is %d by %d",cols, rows);
 
 		/* Get pointers to the data as C-types. */
 		int *f = (int*)PyArray_DATA(f_array);

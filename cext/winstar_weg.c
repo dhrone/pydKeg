@@ -169,4 +169,5 @@ int main() {
 	updateframe(8,7,12,16,20,21,35,2, (int *)frame);
 
 	bcm2835_close();
+	return 0;
 }

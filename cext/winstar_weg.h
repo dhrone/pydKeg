@@ -1,8 +1,8 @@
 
 #define LCD_SETCGRAMADDR 0x40
 #define LCD_SETDDRAMADDR 0x80
-#define P_NARROW 200   // Min delay 120
-#define P_WIDE   5500  // Pulse width
+#define P_NARROW 100   // Min delay 120
+#define P_WIDE   1000  // Pulse width
 #define P_15MS   15500 // >15ms
 
 void updateframe(int rs, int e, int d4, int d5, int d6, int d7, int width, int height, int *frame);
