@@ -262,14 +262,6 @@ class keg_controller(threading.Thread):
 				# For backwards compatibility
 				self.kegdata[u'current_ip'] = current_ip.decode()
 
-				self.kegdata[u'outside_temp'] = outside_temp
-				self.kegdata[u'outside_temp_max'] = outside_temp_max
-				self.kegdata[u'outside_temp_min'] = outside_temp_min
-				self.kegdata[u'outside_temp_formatted'] = outside_temp_formatted
-				self.kegdata[u'outside_temp_max_formatted'] = outside_temp_max_formatted
-				self.kegdata[u'outside_temp_min_formatted'] = outside_temp_min_formatted
-				self.kegdata[u'outside_conditions'] = outside_conditions
-
 			# Read environmentals every 20 seconds
 			time.sleep(20)
 

@@ -23,7 +23,7 @@ IMAGES = {
 
 WIDGETS = {
 	'name': { 'type':'text', 'format':'{0}', 'variables':['name'], 'font':'small','varwidth':True, 'effect':('scroll','left',1,20,'onloop',2,80) },
-	'description': { 'type':'text', 'format':'{0}', 'variables':['description'], 'font':'small','varwidth':True, 'effect':('scroll','left',5,20,'onloop',2,100)},
+	'description': { 'type':'text', 'format':'{0}', 'variables':['description'], 'font':'small','varwidth':True, 'effect':('scroll','left',4,20,'onloop',2,100)},
 	'remaining': { 'type':'text', 'format':'{0} ozs\nremaining', 'variables':['weight'], 'font':'small', 'varwidth':True, 'size':(80,16), 'just':'left' },
 	'remainingbar': { 'type':'progressimagebar', 'image':'keg', 'value':'weight', 'rangeval':(0,640), 'direction':'up' },
 	'abv': { 'type':'text', 'format':'{0}', 'variables':['abv'], 'font':'tiny', 'varwidth':True, 'just':'right', 'size':(20,8) },

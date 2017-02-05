@@ -70,19 +70,18 @@ void send_byte( int rs, int e, int d4, int d5, int d6, int d7, const unsigned ch
 void send_nibble( int rs, int e, int d4, int d5, int d6, int d7, const unsigned char u8_byte, int mode ) {
 
 	bcm2835_gpio_write(rs, mode);
-	bcm2835_gpio_write(d4, (u8_byte & 0x10));
-	bcm2835_gpio_write(d5, (u8_byte & 0x20));
-	bcm2835_gpio_write(d6, (u8_byte & 0x40));
-	bcm2835_gpio_write(d7, (u8_byte & 0x80));
+	bcm2835_gpio_write(d4, (u8_byte & 0x01));
+	bcm2835_gpio_write(d5, (u8_byte & 0x02));
+	bcm2835_gpio_write(d6, (u8_byte & 0x04));
+	bcm2835_gpio_write(d7, (u8_byte & 0x08));
 	pulse(e, mode);
 }
 
 void pulse( int e, int narrow ) {
   bcm2835_gpio_write(e, 1);
   usleep(1);
-
   bcm2835_gpio_write(e, 0);
-  (narrow)? usleep(P_NARROW) : usleep(P_WIDE);
+  //(narrow)? usleep(P_NARROW) : usleep(P_WIDE);
 }
 
 int init_gpio( int rs, int e, int d4, int d5, int d6, int d7 ) {
@@ -105,7 +104,7 @@ int init_gpio( int rs, int e, int d4, int d5, int d6, int d7 ) {
 	bcm2835_gpio_write(d5, 0);
 	bcm2835_gpio_write(d6, 0);
 	bcm2835_gpio_write(d7, 0);
-	usleep(1);
+	usleep(100);
 
   return 0;
 }
@@ -124,13 +123,16 @@ int init( int rs, int e, int d4, int d5, int d6, int d7 ) {
 	send_nibble(rs, e, d4, d5, d6, d7, 0x00, 0);
 	send_nibble(rs, e, d4, d5, d6, d7, 0x00, 0);
 	send_nibble(rs, e, d4, d5, d6, d7, 0x00, 0);
+	usleep(1000);
 
 	// Set to 8 bit mode
-  send_nibble(rs, e, d4, d5, d6, d7, 0x03, 0);
 	send_nibble(rs, e, d4, d5, d6, d7, 0x03, 0);
+	send_nibble(rs, e, d4, d5, d6, d7, 0x03, 0);
+	usleep(1000);
 
-  // Set to 4-bit mode
-  send_nibble(rs, e, d4, d5, d6, d7, 0x02, 0);
+	// Set to 4-bit mode
+	send_nibble(rs, e, d4, d5, d6, d7, 0x02, 0);
+	usleep(1000);
 
 	send_byte(rs, e, d4, d5, d6, d7, 0x08, 0);
 	send_byte(rs, e, d4, d5, d6, d7, 0x29, 0);
@@ -139,6 +141,7 @@ int init( int rs, int e, int d4, int d5, int d6, int d7 ) {
 	send_byte(rs, e, d4, d5, d6, d7, 0x01, 0);
 	send_byte(rs, e, d4, d5, d6, d7, 0x0c, 0);
 
+	usleep(1000);
 	return 0;
 }
 

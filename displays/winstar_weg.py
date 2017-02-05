@@ -122,35 +122,35 @@ class winstar_weg(lcd_display_driver.lcd_display_driver):
 		# https://en.wikipedia.org/wiki/Hitachi_HD44780_LCD_controller
 
 		if C_LIBRARY:
-			_winstar_weg.init(self.pin_rs, self.pin_e, self.pins_db[0], self.pins_db[1], self.pins_db[2], self.pins_db[3])
-		else:
-			# Assuming that the display may already be in 4 bit mode
-			# send four 0000 instructions to resync the display
-			for i in range(1,5):
-				self.writeonly4bits(0x00, False)
+			_winstar_weg.initgpio(self.pin_rs, self.pin_e, self.pins_db[0], self.pins_db[1], self.pins_db[2], self.pins_db[3])
 
-			self.delayMicroseconds(1000)
+		# Assuming that the display may already be in 4 bit mode
+		# send four 0000 instructions to resync the display
+		for i in range(1,5):
+			self.writeonly4bits(0x00, False)
 
-			# Now place in 8 bit mode so that we start from a known state
-			# issuing function set twice in case we are in 4 bit mode
-			self.writeonly4bits(0x03, False)
-			self.writeonly4bits(0x03, False)
+		self.delayMicroseconds(1000)
 
-			self.delayMicroseconds(1000)
+		# Now place in 8 bit mode so that we start from a known state
+		# issuing function set twice in case we are in 4 bit mode
+		self.writeonly4bits(0x03, False)
+		self.writeonly4bits(0x03, False)
 
-			# placing display in 4 bit mode
-			self.writeonly4bits(0x02, False)
-			self.delayMicroseconds(1000)
+		self.delayMicroseconds(1000)
 
-			# From this point forward, we need to use write4bits function which
-			# implements the two stage write that 4 bit mode requires
+		# placing display in 4 bit mode
+		self.writeonly4bits(0x02, False)
+		self.delayMicroseconds(1000)
 
-			self.write4bits(0x08, False) # Turn display off
-			self.write4bits(0x29, False) # Function set for 4 bits, 2 lines, 5x8 font, Western European font table
-			self.write4bits(0x06, False) # Entry Mode set to increment and no shift
-			self.write4bits(0x1F, False) # Set to char mode and turn on power
-			self.write4bits(0x01, False) # Clear display and reset cursor
-			self.write4bits(0x0c, False) # Turn on display
+		# From this point forward, we need to use write4bits function which
+		# implements the two stage write that 4 bit mode requires
+
+		self.write4bits(0x08, False) # Turn display off
+		self.write4bits(0x29, False) # Function set for 4 bits, 2 lines, 5x8 font, Western European font table
+		self.write4bits(0x06, False) # Entry Mode set to increment and no shift
+		self.write4bits(0x1F, False) # Set to char mode and turn on power
+		self.write4bits(0x01, False) # Clear display and reset cursor
+		self.write4bits(0x0c, False) # Turn on display
 
 
 		# Set up parent class.  Note.  This must occur after display has been
@@ -210,7 +210,6 @@ class winstar_weg(lcd_display_driver.lcd_display_driver):
 
 	def updateframe(self, newbuf):
 
-		print "Oldstyle update"
 		rows = int(math.ceil(self.rows/8.0))
 		for j in range(0, rows):
 			self.setCursor(j*8,0)

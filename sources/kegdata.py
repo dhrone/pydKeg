@@ -72,6 +72,14 @@ class kegdata():
 		self.kegdata = self.kegdata_init
 		self.kegdata_prev = { }
 
+		self.server = server
+		self.port = port
+		self.pwd = pwd
+		self.tap = tap
+		self.connection_failed = 0
+
+		self.dataclient = None
+
 		print "Initializing keg data service"
 
 		self.hx = HX711(25,24)
@@ -87,13 +95,6 @@ class kegdata():
 		data_t.start()
 
 
-		self.server = server
-		self.port = port
-		self.pwd = pwd
-		self.tap = tap
-		self.connection_failed = 0
-
-		self.dataclient = None
 
 
 	def validatekegvars(self, vars):

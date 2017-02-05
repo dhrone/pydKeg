@@ -5,12 +5,14 @@
 /* Docstrings */
 static char module_docstring[] = "This module provides an interface to the winstar weg graphics display.";
 static char init_docstring[] = "Initialize display";
+static char init_gpio_docstring[] = "Initialize GPIO";
 static char updateframe_docstring[] = "Send frame to display";
 static char printframe_docstring[] = "Send frame to stdout";
 static char clear_docstring[] = "Clear display";
 
 /* Available functions */
 static PyObject *winstar_weg_init(PyObject *self, PyObject *args);
+static PyObject *winstar_weg_init_gpio(PyObject *self, PyObject *args);
 static PyObject *winstar_weg_updateframe(PyObject *self, PyObject *args);
 static PyObject *winstar_weg_printframe(PyObject *self, PyObject *args);
 static PyObject *winstar_weg_clear(PyObject *self, PyObject *args);
@@ -18,6 +20,7 @@ static PyObject *winstar_weg_clear(PyObject *self, PyObject *args);
 /* Module specification */
 static PyMethodDef module_methods[] = {
 		{"init", winstar_weg_init, METH_VARARGS, init_docstring},
+		{"initgpio", winstar_weg_init_gpio, METH_VARARGS, init_gpio_docstring},
 		{"updateframe", winstar_weg_updateframe, METH_VARARGS, updateframe_docstring},
 		{"printframe", winstar_weg_printframe, METH_VARARGS, printframe_docstring},
 		{"clear", winstar_weg_clear, METH_VARARGS, clear_docstring},
@@ -35,6 +38,17 @@ PyMODINIT_FUNC init_winstar_weg(void)
 		import_array();
 }
 
+static PyObject *winstar_weg_init_gpio(PyObject *self, PyObject *args)
+{
+		int rs, e, d4, d5, d6, d7;
+		/* Parse the input tuple */
+		if (!PyArg_ParseTuple(args, "iiiiii", &rs, &e, &d4, &d5, &d6, &d7)) return NULL;
+
+		/* Call the external C function to initialize the display */
+		init_gpio(rs, e, d4, d5, d6, d7);
+		Py_RETURN_NONE;
+}
+
 static PyObject *winstar_weg_init(PyObject *self, PyObject *args)
 {
 		int rs, e, d4, d5, d6, d7;
@@ -43,7 +57,7 @@ static PyObject *winstar_weg_init(PyObject *self, PyObject *args)
 
 		/* Call the external C function to initialize the display */
 		init(rs, e, d4, d5, d6, d7);
-		return Py_None;
+		Py_RETURN_NONE;
 }
 
 static PyObject *winstar_weg_clear(PyObject *self, PyObject *args)
@@ -54,7 +68,7 @@ static PyObject *winstar_weg_clear(PyObject *self, PyObject *args)
 
 		/* Call the external C function to initialize the display */
 		clear(rs, e, d4, d5, d6, d7);
-		return Py_None;
+		Py_RETURN_NONE;
 }
 
 static PyObject *winstar_weg_updateframe(PyObject *self, PyObject *args)
@@ -98,7 +112,8 @@ static PyObject *winstar_weg_updateframe(PyObject *self, PyObject *args)
 		/* Clean up. */
 		Py_DECREF(f_array);
 
-		return Py_None;
+		Py_RETURN_NONE;
+
 }
 
 
@@ -142,7 +157,7 @@ static PyObject *winstar_weg_printframe(PyObject *self, PyObject *args)
 		/* Clean up. */
 		Py_DECREF(f_array);
 
-		return Py_None;
+		Py_RETURN_NONE;
 }
 
 

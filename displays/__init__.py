@@ -5,6 +5,10 @@ import display
 import graphics
 import lcd_curses
 import winstar_weg
-import _winstar_weg
+try:
+	import _winstar_weg
+except:
+	print "No C driver found"
+	pass
 import hd44780
 import fonts

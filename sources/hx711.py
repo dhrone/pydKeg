@@ -52,10 +52,12 @@ class HX711:
         return ret
 
     def read(self):
-        while not self.is_ready():
+        if not self.is_ready():
             #print("WAITING")
-            GPIO.wait_for_edge(self.DOUT, GPIO.FALLING)
-            pass
+            #GPIO.wait_for_edge(self.DOUT, GPIO.FALLING)
+            while not self.is_ready():
+		time.sleep(0.00001)
+		pass
 
         dataBits = [self.createBoolList(), self.createBoolList(), self.createBoolList()]
         dataBytes = [0x0] * 4
