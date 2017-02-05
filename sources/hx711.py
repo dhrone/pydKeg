@@ -27,7 +27,7 @@ class HX711:
 		self.byte_range_values = self.LSByte
 		self.bit_range_values = self.MSBit
 
-		self.movavgSIZE = 100
+		self.movavgSIZE = 50
 		self.movavg = [ long(0) ] * self.movavgSIZE
 		self.movavgsize = 0
 		self.movavghead = 0
