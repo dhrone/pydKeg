@@ -104,7 +104,7 @@ int nsleep(unsigned int nsec) {
 
 void pulse( int e, int narrow ) {
   bcm2835_gpio_write(e, 1);
-  nsleep(250);
+  nsleep(150);
   bcm2835_gpio_write(e, 0);
   //(narrow)? usleep(P_NARROW) : usleep(P_WIDE);
 }

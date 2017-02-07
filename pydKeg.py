@@ -398,7 +398,8 @@ if __name__ == u'__main__':
 				img = dc.next()
 			lcd.update(img)
 
-			delay_time = time.time() - start_loop + pydKeg_config.ANIMATION_SMOOTHING
+			loop_time = time.time() - start_loop
+			delay_time = pydKeg_config.ANIMATION_SMOOTHING - loop_time
 			if delay_time > 0:
 				time.sleep(delay_time)
 
