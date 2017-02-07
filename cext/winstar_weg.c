@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
+#include <errno.h>
+#include <signal.h>
 #include <bcm2835.h>
 #include <unistd.h>
 #include "winstar_weg.h"
@@ -77,9 +80,31 @@ void send_nibble( int rs, int e, int d4, int d5, int d6, int d7, const unsigned 
 	pulse(e, mode);
 }
 
+int nsleep(unsigned int nsec) {
+	struct timespec timeout0;
+	struct timespec timeout1;
+	struct timespec* tmp;
+	struct timespec* t0 = &timeout0;
+	struct timespec* t1 = &timeout1;
+
+	t0->tv_sec = nsec / 1000000000;
+	t0->tv_nsec = nsec % 1000000000;
+	printf ("Sleeping %ld seconds and %ld nanoseconds\n",t0->tv_sec, t0->tv_nsec);
+
+	while(nanosleep(t0, t1) == -1) {
+		if(errno == EINTR) {
+			tmp = t0;
+			t0 = t1;
+			t1 = tmp;
+		}
+		else return -1;
+	}
+	return 0;
+}
+
 void pulse( int e, int narrow ) {
   bcm2835_gpio_write(e, 1);
-  usleep(1);
+  nsleep(250);
   bcm2835_gpio_write(e, 0);
   //(narrow)? usleep(P_NARROW) : usleep(P_WIDE);
 }
