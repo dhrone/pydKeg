@@ -184,6 +184,7 @@ class kegdata():
 					user='root',
 					charset='utf8',
 					password=self.pwd,
+					autocommit=True,
 					cursorclass=pymysql.cursors.DictCursor)
 
 				if conn.open:
@@ -196,7 +197,7 @@ class kegdata():
 				self.dataclient = None
 				self.connection_failed += 1
 				time.sleep(1)
-				
+
 
 	#
 	# def subscribe(self):
@@ -287,9 +288,6 @@ class kegdata():
 			self.kegdata[u'brewed'] = datetime.datetime.fromtimestamp(0)
 			self.kegdata[u'notes'] = u''
 
-
-
-
 		self.kegdata[u'weight'] = int(self.hx.get_weight(10))
 		print "Weight is {0} in oz".format(self.kegdata[u'weight'])
 		self.hx.power_down()
@@ -348,6 +346,7 @@ if __name__ == u'__main__':
 
 
 	import sys
+	print "kegdata test\n  server: {0}\n  port  : {1}\n  tap   : {2}\n".format(server,port,tap)
 	q = Queue.Queue()
 	kd = kegdata(q, server, port, pwd, tap)
 
